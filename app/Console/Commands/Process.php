@@ -38,14 +38,14 @@ class Process extends Command
      */
     public function handle()
     {
-        $startMemory = memory_get_usage();
-        $array = range(1, 4100000);
-        foreach ($array as $key => $value) {
-          $Activity =new Activity();
-          $Activity->admin_id=1;
-          $Activity->message=$value;
-          $Activity->save();
-        }
-        return 'success';
+        // $startMemory = memory_get_usage();
+        // $array = range(1, 4100000);
+        // foreach ($array as $key => $value) {
+        //   $Activity =new Activity();
+        //   $Activity->admin_id=1;
+        //   $Activity->message=$value;
+        //   $Activity->save();
+        // }
+        // return 'success';
     }
 }
