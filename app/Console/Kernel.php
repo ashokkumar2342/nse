@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-         $schedule->command('nifty:store')->dailyAt('7:08');
+         $schedule->command('nifty:store')->dailyAt('9:15');
     }
 
     /**
