@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Model\Activity;
+use Berkayk\OneSignal\sendNotificationToAll;
 use Illuminate\Console\Command;
+use OneSignal;
 
 class Process extends Command
 {
@@ -38,14 +40,12 @@ class Process extends Command
      */
     public function handle()
     {
-        // $startMemory = memory_get_usage();
-        // $array = range(1, 4100000);
-        // foreach ($array as $key => $value) {
-        //   $Activity =new Activity();
-        //   $Activity->admin_id=1;
-        //   $Activity->message=$value;
-        //   $Activity->save();
-        // }
-        // return 'success';
+       OneSignal::sendNotificationToAll(
+              "Hello Ashok Testing Notification", 
+              $url = null, 
+              $data = null, 
+              $buttons = null, 
+              $schedule = null
+          );
     }
 }
