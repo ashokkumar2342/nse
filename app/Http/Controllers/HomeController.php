@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\SendMail;
- 
 use App\Events\SmsEvent;
 use App\Http\Controllers\Controller;
-use App\Model\Category;
-use App\Model\ClassType;
-use App\Model\Gender;
-use App\Model\ParentRegistration;
-use App\Model\Religion;
-use App\Model\SessionDate;
-use App\Model\StudentDefaultValue;
+use App\Mail\SendMail; 
+use App\Nifty;
+use App\TradeFailed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
 
+ 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-    //  */
+    
+    protected $api_url;
+    protected $token;
+
     public function __construct()
-    {
-        $this->middleware('auth');
+    {        
+        $this->api_url = 'https://api.fyers.in/api/v1'; 
+        $this->token = DB::table('config')->first()->token; 
     }
 
     /**
@@ -35,29 +32,97 @@ class HomeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        // Mail::send(new SendMail('email@ashok.com','otp'));
-        // Mail::send('mail',['name','ashok'],function($message){
-        //     $message->to('ashok@gmail.com','To Ashok')->subject('test email');
-        //     $message->from('ashok@gmail.com','Ashoka');
-        // } );
+    {  
+        $config =DB::table('config')->first();
+        $client = new Client();
+        $res = $client->request('get', $this->api_url.'/get_profile', [ 
+            'headers' => [
+                'Accept' => 'application/json',
+                'Authorization' => $config->token,
+            ],
+        ]);
+        return $data= $res->getBody()->getContents(); 
+        $datas = (array) json_decode($data);
+        $priorities = $datas['data']; 
 
-        // $data = array( 'email' => 'sample@sample.com', 'otp' => 'Lar', 'from' => 'sample@sample.comt', 'from_name' => 'Vel' );
+        dd($priorities);
+          $niftys =Nifty::take(100)->get();
 
-        // Mail::send( 'mail', $data, function( $message ) use ($data)
-        // {
-        //     $message->to( $data['email'] )->from( $data['from'], $data['otp'] )->subject( 'Welcome!' );
-        // });
-        // return 'done';
-
-        return view('front.registration.dashboard');
-        // $classes = array_pluck(ClassType::get(['id','alias'])->toArray(),'alias', 'id');    
-        // $sessions = array_pluck(SessionDate::get(['id','date'])->toArray(),'date', 'id');
-        // $genders = array_pluck(Gender::get(['id','genders'])->toArray(),'genders', 'id');
-        // $religions = array_pluck(Religion::get(['id','name'])->toArray(),'name', 'id');
-        // $categories = array_pluck(Category::get(['id','name'])->toArray(),'name', 'id');
-        // $default = StudentDefaultValue::find(1); 
-           
-        // return view('front.registration.form',compact('classes','sessions','default','genders','religions','categories'));
+        return view('front.home',compact('niftys'));
+        
     }
+    public function getProfile()
+    {  
+        $config =DB::table('config')->first();
+        $client = new Client();
+        $res = $client->request('get', $this->api_url.'/get_profile', [ 
+            'headers' => [
+                'Accept' => 'application/json',
+                'Authorization' => $config->token,
+            ],
+        ]);
+        return $data= $res->getBody()->getContents(); 
+        $datas = (array) json_decode($data);
+        $priorities = $datas['data']; 
+
+        dd($priorities);
+          $niftys =Nifty::take(100)->get();
+
+        return view('front.home',compact('niftys'));
+        
+    }
+
+    public function placeOrder(Request $request)
+    {   
+        try {
+            $json =(array)$request->all();
+            $json =json_encode($json);
+
+            $this->orders($json);
+        } catch (Exception $e) {
+
+        }
+              
+    }
+
+    public function orders($json)
+    {    
+        try {
+            
+            $config =DB::table('config')->first();
+            $client = new Client();
+            $res = $client->request(
+                'POST', $this->api_url.'/orders', [ 
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => $this->token,
+                ],
+                 'body' => $json
+                     
+            ]);
+            $data= $res->getBody()->getContents();  
+            $datas = (array) json_decode($data); 
+            if ($datas['code']==1101) {
+               return $datas;
+            }
+        } catch (\GuzzleHttp\Exception\RequestException $e) { 
+            $this->tradeFailed($json);
+            
+        }
+              
+    }
+    public function tradeFailed($json)
+    {    
+        try {
+            $TradeFailed = new TradeFailed(); 
+            $TradeFailed->json = $json;
+            $TradeFailed->status = 1;
+            $TradeFailed->save();
+            return $TradeFailed;
+        } catch (Exception $e) {
+            
+        }
+              
+    }
+
 }

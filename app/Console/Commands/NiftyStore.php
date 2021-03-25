@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Message;
 use App\Nifty;
+use App\TradeFailed;
 use Berkayk\OneSignal\sendNotificationToAll;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -87,32 +88,102 @@ class NiftyStore extends Command
            $updated_date = date('d-m-Y',strtotime($message->updated_at)); 
            if ($symble=='+') {
                $addvalue =$message->value + 20;  
+               if ($today==$updated_date) { 
+                    if ($addvalue > $value && $message->count < 11 ) {
+                       $message->value=$value; 
+                       $message->count=$message->count+1;
+                       $message->save(); 
+                       OneSignal::sendNotificationToAll(
+                              (string)$value, 
+                              $url = null, 
+                              $data = null, 
+                              $buttons = null, 
+                              $schedule = null
+                          );  
+                    }else{
+
+                    }  
+                     
+               }else{
+                 $message->value=0; 
+                 $message->count=0; 
+                 $message->save(); 
+               }
            }else{
                $addvalue =$message->value - 20; 
-           }  
-           if ($today==$updated_date) { 
-                if ($addvalue > $value && $message->count < 11 ) {
-                   $message->value=$value; 
-                   $message->count=$message->count+1;
-                   $message->save(); 
-                   OneSignal::sendNotificationToAll(
-                          (string)$value, 
-                          $url = null, 
-                          $data = null, 
-                          $buttons = null, 
-                          $schedule = null
-                      );  
-                }else{
+               if ($today==$updated_date) { 
+                    if ($addvalue < $value && $message->count < 11 ) {
+                       $message->value=$value; 
+                       $message->count=$message->count+1;
+                       $message->save(); 
+                       OneSignal::sendNotificationToAll(
+                              (string)$value, 
+                              $url = null, 
+                              $data = null, 
+                              $buttons = null, 
+                              $schedule = null
+                          );  
+                    }else{
 
-                }  
-                 
-           }else{
-             $message->value=0; 
-             $message->count=0; 
-             $message->save(); 
-           }
+                    }  
+                     
+               }else{
+                 $message->value=0; 
+                 $message->count=0; 
+                 $message->save(); 
+               }
+           }  
+          
            
         }
         
     }
+  public function tradeFailedTry()
+    {
+      $TradeFaileds = TradeFailed::where('status',1)->get();
+      foreach ($TradeFaileds as $TradeFaileds) {
+        $this->orders($TradeFaileds->json)
+      }
+  } 
+
+  public function orders($json)
+  {    
+      try {
+          
+          $config =DB::table('config')->first();
+          $client = new Client();
+          $res = $client->request(
+              'POST', $this->api_url.'/orders', [ 
+              'headers' => [
+                  'Content-Type' => 'application/json',
+                  'Authorization' => $this->token,
+              ],
+               'body' => $json
+                   
+          ]);
+          $data= $res->getBody()->getContents();  
+          $datas = (array) json_decode($data); 
+          if ($datas['code']==1101) {
+             return $datas;
+          }
+      } catch (\GuzzleHttp\Exception\RequestException $e) { 
+          $this->tradeFailed($json);
+          
+      }
+            
+  } 
+
+  public function tradeFailed($json)
+  {    
+      try {
+          $TradeFailed = new TradeFailed(); 
+          $TradeFailed->json = $json;
+          $TradeFailed->status = 1;
+          $TradeFailed->save();
+          return $TradeFailed;
+      } catch (Exception $e) {
+          
+      }
+            
+  }
 }
