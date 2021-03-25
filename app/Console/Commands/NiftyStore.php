@@ -9,7 +9,8 @@ use Berkayk\OneSignal\sendNotificationToAll;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use OneSignal;
-
+use DB;
+use GuzzleHttp\Client;
 class NiftyStore extends Command
 {
     /**
@@ -143,6 +144,7 @@ class NiftyStore extends Command
     {
       $TradeFaileds = TradeFailed::where('status',1)->get();
       foreach ($TradeFaileds as $TradeFaileds) {
+        \Log::info('message');
         $this->orders($TradeFaileds->json);
       }
   } 
