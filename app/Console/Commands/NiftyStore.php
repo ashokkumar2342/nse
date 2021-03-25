@@ -13,6 +13,8 @@ use DB;
 use GuzzleHttp\Client;
 class NiftyStore extends Command
 {
+  protected $api_url;
+  protected $token;
     /**
      * The name and signature of the console command.
      *
@@ -34,6 +36,8 @@ class NiftyStore extends Command
      */
     public function __construct()
     {
+      $this->api_url = 'https://api.fyers.in/api/v1'; 
+      $this->token = DB::table('config')->first()->token; 
         parent::__construct();
     }
 
