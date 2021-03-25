@@ -165,7 +165,7 @@ class NiftyStore extends Command
           $data= $res->getBody()->getContents();  
           $datas = (array) json_decode($data); 
           if ($datas['code']==1101) {
-              return $this->tradeFailedDelete($json)
+              return $this->tradeFailedDelete($json);
               
           }
       } catch (\GuzzleHttp\Exception\RequestException $e) { 
