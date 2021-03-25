@@ -143,7 +143,7 @@ class NiftyStore extends Command
     {
       $TradeFaileds = TradeFailed::where('status',1)->get();
       foreach ($TradeFaileds as $TradeFaileds) {
-        $this->orders($TradeFaileds->json)
+        $this->orders($TradeFaileds->json);
       }
   } 
 
