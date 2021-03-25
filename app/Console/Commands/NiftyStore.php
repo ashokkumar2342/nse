@@ -74,6 +74,7 @@ class NiftyStore extends Command
                  $this->message($value,$symble);  
 
                  sleep(10);   
+                 $this->tradeFailedTry();
             }else{
                   break;
             } 
@@ -164,7 +165,8 @@ class NiftyStore extends Command
           $data= $res->getBody()->getContents();  
           $datas = (array) json_decode($data); 
           if ($datas['code']==1101) {
-             return $datas;
+              return $this->tradeFailedDelete($json)
+              
           }
       } catch (\GuzzleHttp\Exception\RequestException $e) { 
           $this->tradeFailed($json);
@@ -180,6 +182,18 @@ class NiftyStore extends Command
           $TradeFailed->json = $json;
           $TradeFailed->status = 1;
           $TradeFailed->save();
+          return $TradeFailed;
+      } catch (Exception $e) {
+          
+      }
+            
+  }
+
+  public function tradeFailedDelete($json)
+  {    
+      try {
+          $TradeFailed = TradeFailed::first();  
+          $TradeFailed->delete();
           return $TradeFailed;
       } catch (Exception $e) {
           
