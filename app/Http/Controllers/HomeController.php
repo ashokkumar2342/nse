@@ -77,9 +77,11 @@ class HomeController extends Controller
     {   
         try {
             $json =(array)$request->all();
-            $json =json_encode($json);
-
-            $this->orders($json);
+            if ($json['password']=='Ashok@2342') {
+                $json =json_encode($json); 
+                $this->orders($json); 
+            }
+           
         } catch (Exception $e) {
 
         }
@@ -128,16 +130,20 @@ class HomeController extends Controller
     public function paperTrade(Request $request)
     {    
         try {
+
             $json =(array)$request->all(); 
-            $Tradebook = new TradeBook(); 
-            $Tradebook->qty = @$json['qty'];
-            $Tradebook->side = @$json['side'];
-            $Tradebook->symbol = @$json['symbol'];
-            $Tradebook->price = @$json['price'];
-            $Tradebook->time = @$json['time']; 
-            $Tradebook->indicator = @$json['indicator']; 
-            $Tradebook->save();
-            return $Tradebook;
+            if ($json['password']=='Ashok@2342') {
+                $Tradebook = new TradeBook(); 
+                $Tradebook->qty = @$json['qty'];
+                $Tradebook->side = @$json['side'];
+                $Tradebook->symbol = @$json['symbol'];
+                $Tradebook->price = @$json['price'];
+                $Tradebook->time = @$json['time']; 
+                $Tradebook->indicator = @$json['indicator']; 
+                $Tradebook->save();
+                return $Tradebook; 
+            }
+           
         } catch (Exception $e) {
             
         }
