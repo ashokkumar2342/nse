@@ -33,6 +33,7 @@ Route::get('/', function () {
 Route::get('index', 'HomeController@index'); 
 Route::get('place-order', 'HomeController@placeOrder'); 
 Route::get('get-profile', 'HomeController@getProfile'); 
+Route::get('paper-trade', 'HomeController@paperTrade'); 
 
  
 Route::prefix('parent')->group(function () {

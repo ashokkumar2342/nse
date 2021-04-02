@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\SendMail; 
 use App\Nifty;
 use App\TradeFailed;
+use App\TradeBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
@@ -119,6 +120,24 @@ class HomeController extends Controller
             $TradeFailed->status = 1;
             $TradeFailed->save();
             return $TradeFailed;
+        } catch (Exception $e) {
+            
+        }
+              
+    }
+    public function paperTrade(Request $request)
+    {    
+        try {
+            $json =(array)$request->all(); 
+            $Tradebook = new TradeBook(); 
+            $Tradebook->qty = @$json['qty'];
+            $Tradebook->side = @$json['side'];
+            $Tradebook->symbol = @$json['symbol'];
+            $Tradebook->price = @$json['price'];
+            $Tradebook->time = @$json['time']; 
+            $Tradebook->indicator = @$json['indicator']; 
+            $Tradebook->save();
+            return $Tradebook;
         } catch (Exception $e) {
             
         }
