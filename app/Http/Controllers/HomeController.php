@@ -129,20 +129,41 @@ class HomeController extends Controller
     }
     public function paperTrade(Request $request)
     {    
-        try {
-
+        try { 
+            
             $json =(array)$request->all(); 
             if ($json['password']=='Ashok@2342') {
                 $Tradebook = new TradeBook(); 
                 $Tradebook->qty = @$json['qty'];
                 $Tradebook->side = @$json['side'];
                 $Tradebook->symbol = @$json['symbol'];
-                $Tradebook->price = @$json['price'];
+                if (@$json['price'] !=null) {
+                    $Tradebook->price = @$json['price'];
+                }else{
+                    $Tradebook->price =$this->getPrice('nifty');
+                } 
                 $Tradebook->time = @$json['time']; 
                 $Tradebook->indicator = @$json['indicator']; 
                 $Tradebook->save();
                 return $Tradebook; 
             }
+           
+        } catch (Exception $e) {
+            
+        }
+              
+    }
+
+    public function getPrice($symble)
+    {    
+        try {
+
+            $ipinfoAPI="https://www.google.com/async/finance_wholepage_price_updates?ei=SLyRX8W3IK3ez7sPluaP0AQ&rlz=1C1CHZL_enIN828IN829&yv=3&async=mids:%2Fm%2F04t5sp,currencies:,_fmt:jspb";
+
+              $data =  file_get_contents($ipinfoAPI);
+              $data=substr($data, 5);
+              $data =json_decode($data); 
+             return $data->PriceUpdate[0][0][0][17][4];
            
         } catch (Exception $e) {
             
