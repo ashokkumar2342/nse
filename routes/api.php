@@ -27,4 +27,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 	          
 	    // });
 	});
+Route::get('index', 'HomeController@index'); 
+Route::post('place-order', 'HomeController@placeOrder'); 
+Route::get('get-profile', 'HomeController@getProfile');  
+Route::post('paper-trade', 'HomeController@paperTrade'); 
+
  
