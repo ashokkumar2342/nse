@@ -193,10 +193,12 @@ class HomeController extends Controller
             $temp =[];               
             $buy =[];               
             $sell =[];               
+            $created_at =[];               
             foreach ($price_buy as $key => $value) {
                   $temp[$key]= $price_sell[$key]->price - $value->price;
                   $buy[$key] =$value->price;               
                   $sell[$key] =$price_sell[$key]->price;                          
+                  $created_at[$key] =$value->created_at;                          
             }               
             $data = array();
             $data['price_buy'] = $price_buy->sum('price');               
@@ -206,7 +208,8 @@ class HomeController extends Controller
             $data['list'] = $temp;               
             $data['buy'] = $buy;               
             $data['sell'] = $sell;
-            $data['sum'] = array_sum($temp);
+            $data['created_at'] = $created_at;
+            $data['sum'] = array_sum($temp); 
 
             $data['total'] = $price_sell->sum('price') - $price_buy->sum('price') ;
             return $data;              
