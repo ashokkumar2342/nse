@@ -170,23 +170,25 @@ class HomeController extends Controller
         }
               
     }
-    public function paperTradeReport($symble,$indicator)
+    public function paperTradeReport($symble,$indicator,$date,$time)
     {    
         try {
             
-             $date = date('Y-m-d');
+             $date = date('Y-m-d',strtotime($date));
              $symble =$symble;
              $indicator =$indicator; 
              $price_buy = TradeBook::whereDate('created_at',$date)
                           ->where('side',1)
                           ->where('symbol','Like',$symble)
                           ->where('indicator',$indicator)
+                          ->where('time',$time)
                           ->get();
              $price_sell = TradeBook::
                            whereDate('created_at',$date)
                            ->where('side',-1)
                            ->where('symbol','Like',$symble)
                            ->where('indicator',$indicator)
+                           ->where('time',$time)
                            ->get();
             $temp =[];               
             $buy =[];               
