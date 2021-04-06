@@ -170,5 +170,50 @@ class HomeController extends Controller
         }
               
     }
+    public function paperTradeReport($symble,$indicator)
+    {    
+        try {
+            
+             $date = date('Y-m-d');
+             $symble =$symble;
+             $indicator =$indicator; 
+             $price_buy = TradeBook::whereDate('created_at',$date)
+                          ->where('side',1)
+                          ->where('symbol','Like',$symble)
+                          ->where('indicator',$indicator)
+                          ->get();
+             $price_sell = TradeBook::
+                           whereDate('created_at',$date)
+                           ->where('side',-1)
+                           ->where('symbol','Like',$symble)
+                           ->where('indicator',$indicator)
+                           ->get();
+            $temp =[];               
+            $buy =[];               
+            $sell =[];               
+            foreach ($price_buy as $key => $value) {
+                  $temp[$key]= $price_sell[$key]->price - $value->price;
+                  $buy[$key] =$value->price;               
+                  $sell[$key] =$price_sell[$key]->price;                          
+            }               
+            $data = array();
+            $data['price_buy'] = $price_buy->sum('price');               
+            $data['price_sell'] = $price_sell->sum('price');            
+            $data['count_buy'] = $price_buy->count();               
+            $data['count_sell'] = $price_sell->count();               
+            $data['list'] = $temp;               
+            $data['buy'] = $buy;               
+            $data['sell'] = $sell;
+            $data['sum'] = array_sum($temp);
+
+            $data['total'] = $price_sell->sum('price') - $price_buy->sum('price') ;
+            return $data;              
+              
+           
+        } catch (Exception $e) {
+            
+        }
+              
+    }
 
 }
